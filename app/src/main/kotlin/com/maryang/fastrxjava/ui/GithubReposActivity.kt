@@ -1,6 +1,7 @@
 package com.maryang.fastrxjava.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,6 +10,9 @@ import kotlinx.android.synthetic.main.activity_github_repos.*
 
 
 class GithubReposActivity : AppCompatActivity() {
+    companion object {
+        val TAG: String = GithubReposActivity::class.java.simpleName
+    }
 
     private val viewModel: GithubReposViewModel by lazy {
         GithubReposViewModel()
@@ -26,7 +30,10 @@ class GithubReposActivity : AppCompatActivity() {
 
         refreshLayout.setOnRefreshListener { load() }
 
-        load(true)
+//        load(true)
+//        loadWithMaybe(true)
+//        loadWithCompletable(true)
+        loadWithSingle(true)
     }
 
     private fun load(showLoading: Boolean = false) {
@@ -41,6 +48,60 @@ class GithubReposActivity : AppCompatActivity() {
                 hideLoading()
             }
         )
+    }
+
+    private fun loadWithMaybe(showLoading: Boolean = false) {
+        if(showLoading) {
+            showLoading()
+        }
+        viewModel.getGithubReposWithMaybe()
+                .subscribe({
+                    Log.d(TAG, "onSuccess()")
+
+                    hideLoading()
+                    adapter.items = it
+                }, {
+                    Log.d(TAG, "onError()")
+                    hideLoading()
+                }, {
+                    Log.d(TAG, "onComplete()")
+                    Log.d(TAG, "return value is null")
+                    hideLoading()
+                })
+    }
+
+    private fun loadWithCompletable(showLoading: Boolean = false) {
+        if(showLoading) {
+            showLoading()
+        }
+
+        viewModel.getGithubReposWithCompletable()
+                .subscribe({
+                    Log.d(TAG, "onComplete()")
+                    hideLoading()
+                }, {
+                    Log.d(TAG, "onError()")
+                    Log.d(TAG, it.message)
+                    hideLoading()
+                })
+    }
+
+    private fun loadWithSingle(showLoading: Boolean = false) {
+        if(showLoading) {
+            showLoading()
+        }
+
+        viewModel.getGithubReposWithSingle()
+                .subscribe({
+                    Log.d(TAG, "onSuccess()")
+
+                    adapter.items = it
+                    hideLoading()
+                }, {
+                    Log.d(TAG, "onError()")
+                    Log.d(TAG, it.message)
+                    hideLoading()
+                })
     }
 
     private fun showLoading() {
