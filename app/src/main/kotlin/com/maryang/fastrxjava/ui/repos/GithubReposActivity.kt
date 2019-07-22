@@ -27,31 +27,33 @@ class GithubReposActivity : BaseViewModelActivity() {
         GithubReposAdapter()
     }
     private lateinit var mBackPressSubject: BehaviorSubject<Long>
-    private lateinit var mBackPressDisposable: Disposable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_github_repos)
 
         mBackPressSubject = BehaviorSubject.createDefault(System.currentTimeMillis())
-        mBackPressDisposable = mBackPressSubject
-            .observeOn(AndroidSchedulers.mainThread())
-            .buffer(2, 1)
-            .map {
-                Pair(it[0], it[1])
-            }
-            .subscribeWith(object : DisposableObserver<Pair<Long, Long>>() {
-                override fun onNext(t: Pair<Long, Long>) {
-                    if (t.second - t.first <= 1500) {
-                        finish()
-                    } else {
-                        Toast.makeText(this@GithubReposActivity, getString(R.string.back_press), Toast.LENGTH_SHORT).show()
-                    }
-                }
 
-                override fun onComplete() { }
-                override fun onError(e: Throwable) { }
-            })
+        compositeDisposable +=
+            mBackPressSubject
+                .observeOn(AndroidSchedulers.mainThread())
+                .buffer(2, 1)
+                .map {
+                    Pair(it[0], it[1])
+                }
+                .subscribeWith(object : DisposableObserver<Pair<Long, Long>>() {
+                    override fun onNext(t: Pair<Long, Long>) {
+                        if (t.second - t.first <= 1500) {
+                            finish()
+                        } else {
+                            Toast.makeText(this@GithubReposActivity, getString(R.string.back_press), Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+
+                    override fun onComplete() {}
+                    override fun onError(e: Throwable) {}
+                })
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = this.adapter
@@ -119,11 +121,5 @@ class GithubReposActivity : BaseViewModelActivity() {
 
     override fun onBackPressed() {
         mBackPressSubject.onNext(System.currentTimeMillis())
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        mBackPressDisposable.dispose()
     }
 }
