@@ -4,12 +4,17 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.maryang.fastrxjava.R
 import com.maryang.fastrxjava.base.BaseViewModelActivity
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.event.DataObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.subjects.BehaviorSubject
 import kotlinx.android.synthetic.main.activity_github_repos.*
 
 
@@ -21,10 +26,32 @@ class GithubReposActivity : BaseViewModelActivity() {
     private val adapter: GithubReposAdapter by lazy {
         GithubReposAdapter()
     }
+    private lateinit var mBackPressSubject: BehaviorSubject<Long>
+    private lateinit var mBackPressDisposable: Disposable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.maryang.fastrxjava.R.layout.activity_github_repos)
+        setContentView(R.layout.activity_github_repos)
+
+        mBackPressSubject = BehaviorSubject.createDefault(System.currentTimeMillis())
+        mBackPressDisposable = mBackPressSubject
+            .observeOn(AndroidSchedulers.mainThread())
+            .buffer(2, 1)
+            .map {
+                Pair(it[0], it[1])
+            }
+            .subscribeWith(object : DisposableObserver<Pair<Long, Long>>() {
+                override fun onNext(t: Pair<Long, Long>) {
+                    if (t.second - t.first <= 1500) {
+                        finish()
+                    } else {
+                        Toast.makeText(this@GithubReposActivity, getString(R.string.back_press), Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onComplete() { }
+                override fun onError(e: Throwable) { }
+            })
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = this.adapter
@@ -88,5 +115,15 @@ class GithubReposActivity : BaseViewModelActivity() {
     private fun hideLoading() {
         loading.visibility = View.GONE
         refreshLayout.isRefreshing = false
+    }
+
+    override fun onBackPressed() {
+        mBackPressSubject.onNext(System.currentTimeMillis())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        mBackPressDisposable.dispose()
     }
 }
