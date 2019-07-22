@@ -28,4 +28,12 @@
         app:layout_constraintTop_toBottomOf="@id/ownerImage"
         tools:text="Owner Name" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/user_repo_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/ownerName"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </androidx.recyclerview.widget.RecyclerView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -59,4 +59,7 @@ class GithubReposViewModel : BaseViewModel() {
         }
             .applySchedulersExtension()
             .toObservable()
+
+    fun getUserGithubReposSingle(userName: String) =
+        repository.searchUserGithubRepos(userName)
 }

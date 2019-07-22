@@ -11,6 +11,10 @@ class GithubRepository {
 
     private val api = ApiManager.githubApi
 
+    fun searchUserGithubRepos(userName: String): Single<List<GithubRepo>> =
+        api.searchUserGithubRepos(userName)
+            .subscribeOn(Schedulers.io())
+
     fun searchGithubRepos(q: String): Single<List<GithubRepo>> =
         api.searchRepos(q)
             .map {

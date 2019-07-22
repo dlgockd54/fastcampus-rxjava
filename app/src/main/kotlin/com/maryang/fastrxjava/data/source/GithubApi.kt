@@ -1,11 +1,17 @@
 package com.maryang.fastrxjava.data.source
 
 import com.google.gson.JsonElement
+import com.maryang.fastrxjava.entity.GithubRepo
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
 
 interface GithubApi {
+
+    @GET("users/{username}/repos")
+    fun searchUserGithubRepos(
+        @Path("username") userName: String
+    ): Single<List<GithubRepo>>
 
     @GET("search/repositories")
     fun searchRepos(
