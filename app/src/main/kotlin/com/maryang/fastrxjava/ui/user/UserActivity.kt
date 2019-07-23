@@ -35,7 +35,6 @@ class UserActivity : BaseActivity() {
     }
 
     private lateinit var mUserRepoAdapter: UserRepoAdapter
-    private lateinit var mGithubReposViewModel: GithubReposViewModel
     private lateinit var mGithubUserViewModel: GithubUserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +49,6 @@ class UserActivity : BaseActivity() {
             showUserInfo(it)
         }
 
-        mGithubReposViewModel = GithubReposViewModel()
         mGithubUserViewModel = GithubUserViewModel()
         mUserRepoAdapter = UserRepoAdapter()
 
@@ -107,7 +105,7 @@ class UserActivity : BaseActivity() {
             }
 
     private fun getUserRepoListSingle(userName: String): Single<List<GithubRepo>> =
-        mGithubReposViewModel
+        mGithubUserViewModel
             .getUserGithubReposSingle(userName)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSuccess {

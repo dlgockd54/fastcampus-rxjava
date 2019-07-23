@@ -15,4 +15,7 @@ class GithubUserViewModel : BaseViewModel() {
 
     fun getUserFollowingListSingle(userName: String) =
         repository.getUserFollowingList(userName)
+
+    fun getUserGithubReposSingle(userName: String) =
+        repository.searchUserGithubRepos(userName)
 }
