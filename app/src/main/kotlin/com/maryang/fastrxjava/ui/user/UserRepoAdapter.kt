@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.maryang.fastrxjava.R
 import com.maryang.fastrxjava.entity.GithubRepo
 import kotlinx.android.synthetic.main.item_github_repo.view.*
-import org.jetbrains.anko.imageResource
 
 /**
  * Created by hclee on 2019-07-22.
@@ -22,7 +21,7 @@ class UserRepoAdapter :
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserRepoViewHolder =
-        UserRepoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_github_repo, parent, false))
+        UserRepoViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_github_user_repo, parent, false))
 
     override fun onBindViewHolder(holder: UserRepoViewHolder, position: Int) {
         holder.bind(mGitHubRepoList[position])
@@ -35,9 +34,6 @@ class UserRepoAdapter :
             with(itemView) {
                 repoName.text = repo.name
                 repoDescription.text = repo.description
-                repoStar.imageResource =
-                    if (repo.star) R.drawable.baseline_star_24
-                    else R.drawable.baseline_star_border_24
             }
         }
     }
