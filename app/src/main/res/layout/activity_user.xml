@@ -17,6 +17,46 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+            android:id="@+id/tv_follower"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_500"
+            android:layout_marginTop="@dimen/spacing_700"
+            android:text="@string/followers"
+            app:layout_constraintStart_toEndOf="@+id/ownerImage"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+            android:id="@+id/tv_follower_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_700"
+            android:layout_marginStart="@dimen/spacing_500"
+            app:layout_constraintStart_toEndOf="@+id/tv_follower"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="50"/>
+
+    <TextView
+            android:id="@+id/tv_following"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_500"
+            android:layout_marginTop="@dimen/spacing_1000"
+            android:text="@string/following"
+            app:layout_constraintStart_toEndOf="@+id/ownerImage"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+            android:id="@+id/tv_following_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1000"
+            android:layout_marginStart="@dimen/spacing_500"
+            app:layout_constraintStart_toEndOf="@+id/tv_following"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="50"/>
+
+    <TextView
         android:id="@+id/ownerName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -37,4 +77,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:scrollbars="vertical">
     </androidx.recyclerview.widget.RecyclerView>
+
+    <ProgressBar
+            android:id="@+id/user_info_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

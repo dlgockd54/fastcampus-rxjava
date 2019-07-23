@@ -2,16 +2,22 @@ package com.maryang.fastrxjava.ui.user
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.maryang.fastrxjava.base.BaseActivity
+import com.maryang.fastrxjava.base.BaseApplication
 import com.maryang.fastrxjava.entity.GithubRepo
+import com.maryang.fastrxjava.entity.User
 import com.maryang.fastrxjava.ui.repos.GithubReposViewModel
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_user.*
 import org.jetbrains.anko.intentFor
+import org.reactivestreams.Subscriber
 
 
 class UserActivity : BaseActivity() {
@@ -30,6 +36,7 @@ class UserActivity : BaseActivity() {
 
     private lateinit var mUserRepoAdapter: UserRepoAdapter
     private lateinit var mGithubReposViewModel: GithubReposViewModel
+    private lateinit var mGithubUserViewModel: GithubUserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +51,7 @@ class UserActivity : BaseActivity() {
         }
 
         mGithubReposViewModel = GithubReposViewModel()
+        mGithubUserViewModel = GithubUserViewModel()
         mUserRepoAdapter = UserRepoAdapter()
 
         with(user_repo_list) {
@@ -51,7 +59,9 @@ class UserActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@UserActivity)
         }
 
-        subscribeUserRepoList(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
+        intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName.let {
+            subscribeUserInfo(it)
+        }
     }
 
     private fun showUserInfo(user: GithubRepo.GithubRepoUser) {
@@ -61,18 +71,55 @@ class UserActivity : BaseActivity() {
         ownerName.text = user.userName
     }
 
-    private fun subscribeUserRepoList(userName: String) {
-        compositeDisposable += mGithubReposViewModel
+    private fun subscribeUserInfo(userName: String) {
+        showLoading()
+
+        compositeDisposable += Single.merge(
+            getUserFollowerListSingle(userName),
+            getUserFollowingListSingle(userName),
+            getUserRepoListSingle(userName)
+        )
+            .subscribe({
+
+            }, {
+                Log.d(BaseApplication.TAG, it.message)
+            }, {
+                hideLoading()
+            })
+    }
+
+    private fun getUserFollowerListSingle(userName: String): Single<List<User>> =
+        mGithubUserViewModel
+            .getUserFollowerListSingle(userName)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSuccess {
+                Log.d("UserActivity", "follower success")
+                tv_follower_num.text = it.size.toString()
+            }
+
+    private fun getUserFollowingListSingle(userName: String): Single<List<User>> =
+        mGithubUserViewModel
+            .getUserFollowingListSingle(userName)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSuccess {
+                Log.d("UserActivity", "following success")
+                tv_following_num.text = it.size.toString()
+            }
+
+    private fun getUserRepoListSingle(userName: String): Single<List<GithubRepo>> =
+        mGithubReposViewModel
             .getUserGithubReposSingle(userName)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWith(object: DisposableSingleObserver<List<GithubRepo>>() {
-                override fun onSuccess(t: List<GithubRepo>) {
-                    mUserRepoAdapter.mGitHubRepoList = t
-                }
+            .doOnSuccess {
+                Log.d("UserActivity", "repo list success")
+                mUserRepoAdapter.mGitHubRepoList = it
+            }
 
-                override fun onError(e: Throwable) {
+    private fun showLoading() {
+        user_info_loading.visibility = View.VISIBLE
+    }
 
-                }
-            })
+    private fun hideLoading() {
+        user_info_loading.visibility = View.GONE
     }
 }

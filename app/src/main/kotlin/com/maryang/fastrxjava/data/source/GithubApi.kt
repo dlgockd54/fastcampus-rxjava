@@ -2,6 +2,7 @@ package com.maryang.fastrxjava.data.source
 
 import com.google.gson.JsonElement
 import com.maryang.fastrxjava.entity.GithubRepo
+import com.maryang.fastrxjava.entity.User
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
@@ -35,4 +36,16 @@ interface GithubApi {
         @Path("owner") owner: String,
         @Path("repo") repo: String
     ): Completable
+
+    @GET("users/{username}/followers")
+    fun getUserFollowerList(
+        @Path("username") userName: String,
+        @Query("per_page") perPage: Int = 100
+    ): Single<List<User>>
+
+    @GET("users/{username}/following")
+    fun getUserFollowingList(
+        @Path("username") userName: String,
+        @Query("per_page") perPage: Int = 100
+    ): Single<List<User>>
 }
