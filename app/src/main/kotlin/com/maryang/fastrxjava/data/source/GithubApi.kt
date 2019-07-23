@@ -11,7 +11,8 @@ interface GithubApi {
 
     @GET("users/{username}/repos")
     fun searchUserGithubRepos(
-        @Path("username") userName: String
+        @Path("username") userName: String,
+        @Query("per_page") perPage: Int = 100
     ): Single<List<GithubRepo>>
 
     @GET("search/repositories")
