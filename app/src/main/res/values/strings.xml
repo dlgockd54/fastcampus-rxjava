@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">FastRxJava</string>
     <string name="back_press">뒤로가기를 한번 더 누르면 종료</string>
+    <string name="follow">Follow</string>
+    <string name="unfollow">Unfollow</string>
     <string name="followers">Followers</string>
     <string name="following">Following</string>
 </resources>

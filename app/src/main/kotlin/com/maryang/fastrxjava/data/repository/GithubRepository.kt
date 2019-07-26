@@ -45,4 +45,16 @@ class GithubRepository {
     fun getUserFollowingList(userName: String): Single<List<User>> =
         api.getUserFollowingList(userName)
             .subscribeOn(Schedulers.io())
+
+    fun getUserFollowingStateCompletable(userName: String): Completable =
+        api.getUserFollowingState(userName)
+            .subscribeOn(Schedulers.io())
+
+    fun followUser(userName: String): Completable =
+        api.followUser(userName)
+            .subscribeOn(Schedulers.io())
+
+    fun unfollowUser(userName: String): Completable =
+        api.unfollowUser(userName)
+            .subscribeOn(Schedulers.io())
 }

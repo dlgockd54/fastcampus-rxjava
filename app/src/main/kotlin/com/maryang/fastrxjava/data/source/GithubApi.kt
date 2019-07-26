@@ -49,4 +49,19 @@ interface GithubApi {
         @Path("username") userName: String,
         @Query("per_page") perPage: Int = 100
     ): Single<List<User>>
+
+    @GET("user/following/{username}")
+    fun getUserFollowingState(
+        @Path("username") userName: String
+    ): Completable
+
+    @PUT("user/following/{username}")
+    fun followUser(
+        @Path("username") userName: String
+    ): Completable
+
+    @DELETE("user/following/{username}")
+    fun unfollowUser(
+        @Path("username") userName: String
+    ): Completable
 }

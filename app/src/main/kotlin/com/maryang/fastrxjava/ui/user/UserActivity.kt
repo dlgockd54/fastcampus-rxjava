@@ -6,18 +6,19 @@ import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.maryang.fastrxjava.R
 import com.maryang.fastrxjava.base.BaseActivity
 import com.maryang.fastrxjava.base.BaseApplication
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.entity.User
-import com.maryang.fastrxjava.ui.repos.GithubReposViewModel
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.observers.DisposableSingleObserver
+import io.reactivex.observers.DisposableCompletableObserver
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_user.*
+import org.jetbrains.anko.imageResource
 import org.jetbrains.anko.intentFor
-import org.reactivestreams.Subscriber
 
 
 class UserActivity : BaseActivity() {
@@ -57,9 +58,33 @@ class UserActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@UserActivity)
         }
 
+        tv_follow.setOnClickListener {
+            clickFollow(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
+        }
+        iv_follow.setOnClickListener {
+            clickFollow(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
+        }
+
         intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName.let {
             subscribeUserInfo(it)
         }
+    }
+
+    private fun clickFollow(userName: String) {
+        compositeDisposable +=
+            mGithubUserViewModel.onClickFollow(
+                tv_follow.text.equals(getString(R.string.follow)),
+                userName
+            ).observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableCompletableObserver() {
+                    override fun onComplete() {
+                        toggleFollowingState(tv_follow.text.equals(getString(R.string.follow)))
+                    }
+
+                    override fun onError(e: Throwable) {
+                        toggleFollowingState(!tv_follow.text.equals(getString(R.string.follow)))
+                    }
+                })
     }
 
     private fun showUserInfo(user: GithubRepo.GithubRepoUser) {
@@ -83,6 +108,17 @@ class UserActivity : BaseActivity() {
                 Log.d(BaseApplication.TAG, it.message)
             }, {
                 hideLoading()
+            })
+
+        compositeDisposable += getUserFollowingStateCompletable(userName)
+            .subscribeWith(object: DisposableCompletableObserver() {
+                override fun onComplete() {
+                    toggleFollowingState(true)
+                }
+
+                override fun onError(e: Throwable) {
+                    toggleFollowingState(false)
+                }
             })
     }
 
@@ -112,6 +148,25 @@ class UserActivity : BaseActivity() {
                 Log.d("UserActivity", "repo list success")
                 mUserRepoAdapter.mGitHubRepoList = it
             }
+
+    private fun getUserFollowingStateCompletable(userName: String): Completable =
+        mGithubUserViewModel
+            .getUserFollowingStateCompletable(userName)
+            .observeOn(AndroidSchedulers.mainThread())
+
+    private fun toggleFollowingState(follow: Boolean) {
+        Log.d(BaseApplication.TAG, "toggleFollowState()")
+
+        if (follow) {
+            iv_follow.imageResource = R.drawable.ic_person_outline_black_24dp
+            tv_follow.text = getString(R.string.unfollow)
+            tv_follower_num.text = (tv_follower_num.text.toString().toInt() + 1).toString()
+        } else {
+            iv_follow.imageResource = R.drawable.ic_person_black_24dp
+            tv_follow.text = getString(R.string.follow)
+            tv_follower_num.text = (tv_follower_num.text.toString().toInt() - 1).toString()
+        }
+    }
 
     private fun showLoading() {
         user_info_loading.visibility = View.VISIBLE

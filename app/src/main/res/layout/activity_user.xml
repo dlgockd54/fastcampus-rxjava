@@ -16,24 +16,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+            android:id="@+id/iv_follow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_500"
+            android:layout_marginTop="@dimen/spacing_400"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ownerImage"
+            android:src="@drawable/ic_person_outline_black_24dp"/>
+
+    <TextView
+            android:id="@+id/tv_follow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_400"
+            android:layout_marginStart="@dimen/spacing_100"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_follow"
+            tools:text="Follow"/>
+
     <TextView
             android:id="@+id/tv_follower"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_500"
-            android:layout_marginTop="@dimen/spacing_700"
+            android:layout_marginTop="@dimen/spacing_100"
             android:text="@string/followers"
             app:layout_constraintStart_toEndOf="@+id/ownerImage"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/iv_follow"/>
 
     <TextView
             android:id="@+id/tv_follower_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_700"
+            android:layout_marginTop="@dimen/spacing_100"
             android:layout_marginStart="@dimen/spacing_500"
             app:layout_constraintStart_toEndOf="@+id/tv_follower"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_follow"
             tools:text="50"/>
 
     <TextView
@@ -41,19 +61,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_500"
-            android:layout_marginTop="@dimen/spacing_1000"
+            android:layout_marginTop="@dimen/spacing_100"
             android:text="@string/following"
             app:layout_constraintStart_toEndOf="@+id/ownerImage"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/tv_follower"/>
 
     <TextView
             android:id="@+id/tv_following_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_1000"
+            android:layout_marginTop="@dimen/spacing_100"
             android:layout_marginStart="@dimen/spacing_500"
             app:layout_constraintStart_toEndOf="@+id/tv_following"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_follower_num"
             tools:text="50"/>
 
     <TextView
