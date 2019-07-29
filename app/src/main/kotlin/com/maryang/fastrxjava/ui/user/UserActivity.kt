@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.jakewharton.rxbinding3.view.clicks
 import com.maryang.fastrxjava.R
 import com.maryang.fastrxjava.base.BaseActivity
 import com.maryang.fastrxjava.base.BaseApplication
@@ -13,14 +14,17 @@ import com.maryang.fastrxjava.data.source.FollowingStateEnum
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.entity.User
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableCompletableObserver
+import io.reactivex.observers.DisposableObserver
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_user.*
 import org.jetbrains.anko.imageResource
 import org.jetbrains.anko.intentFor
+import java.util.concurrent.TimeUnit
 
 
 class UserActivity : BaseActivity() {
@@ -61,12 +65,17 @@ class UserActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@UserActivity)
         }
 
-        tv_follow.setOnClickListener {
-            clickFollow(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
-        }
-        iv_follow.setOnClickListener {
-            clickFollow(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
-        }
+        Observable.merge(tv_follow.clicks(), iv_follow.clicks())
+            .debounce(300, TimeUnit.MILLISECONDS) // Prevent click duplication
+            .subscribe(object: DisposableObserver<Unit>() {
+                override fun onNext(t: Unit) {
+                    clickFollow(intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName)
+                }
+
+                override fun onComplete() { }
+
+                override fun onError(e: Throwable) { }
+            })
 
         intent.getParcelableExtra<GithubRepo.GithubRepoUser>(KEY_USER).userName.let {
             subscribeUserInfo(it)
