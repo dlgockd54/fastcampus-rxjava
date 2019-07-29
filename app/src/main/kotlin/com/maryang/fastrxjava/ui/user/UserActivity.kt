@@ -9,12 +9,14 @@ import com.bumptech.glide.Glide
 import com.maryang.fastrxjava.R
 import com.maryang.fastrxjava.base.BaseActivity
 import com.maryang.fastrxjava.base.BaseApplication
+import com.maryang.fastrxjava.data.source.FollowingStateEnum
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.entity.User
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableCompletableObserver
+import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_user.*
 import org.jetbrains.anko.imageResource
@@ -37,6 +39,7 @@ class UserActivity : BaseActivity() {
 
     private lateinit var mUserRepoAdapter: UserRepoAdapter
     private lateinit var mGithubUserViewModel: GithubUserViewModel
+    private var mIsFollowing: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,17 +76,20 @@ class UserActivity : BaseActivity() {
     private fun clickFollow(userName: String) {
         compositeDisposable +=
             mGithubUserViewModel.onClickFollow(
-                tv_follow.text.equals(getString(R.string.follow)),
+                mIsFollowing,
                 userName
-            ).observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableCompletableObserver() {
-                    override fun onComplete() {
-                        toggleFollowingState(tv_follow.text.equals(getString(R.string.follow)))
+            )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<FollowingStateEnum>() {
+                    override fun onSuccess(t: FollowingStateEnum) {
+                        if (t == FollowingStateEnum.FOLLOWING) {
+                            toggleFollowingState(true)
+                        } else {
+                            toggleFollowingState(false)
+                        }
                     }
 
-                    override fun onError(e: Throwable) {
-                        toggleFollowingState(!tv_follow.text.equals(getString(R.string.follow)))
-                    }
+                    override fun onError(e: Throwable) {}
                 })
     }
 
@@ -155,8 +161,6 @@ class UserActivity : BaseActivity() {
             .observeOn(AndroidSchedulers.mainThread())
 
     private fun toggleFollowingState(follow: Boolean) {
-        Log.d(BaseApplication.TAG, "toggleFollowState()")
-
         if (follow) {
             iv_follow.imageResource = R.drawable.ic_person_outline_black_24dp
             tv_follow.text = getString(R.string.unfollow)
@@ -166,6 +170,8 @@ class UserActivity : BaseActivity() {
             tv_follow.text = getString(R.string.follow)
             tv_follower_num.text = (tv_follower_num.text.toString().toInt() - 1).toString()
         }
+
+        mIsFollowing = follow
     }
 
     private fun showLoading() {

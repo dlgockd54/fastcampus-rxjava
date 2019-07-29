@@ -1,6 +1,7 @@
 package com.maryang.fastrxjava.data.repository
 
 import com.maryang.fastrxjava.data.source.ApiManager
+import com.maryang.fastrxjava.data.source.FollowingStateEnum
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.entity.User
 import io.reactivex.Completable
@@ -50,11 +51,17 @@ class GithubRepository {
         api.getUserFollowingState(userName)
             .subscribeOn(Schedulers.io())
 
-    fun followUser(userName: String): Completable =
+    fun followUser(userName: String): Single<FollowingStateEnum> =
         api.followUser(userName)
             .subscribeOn(Schedulers.io())
+            .toSingle {
+                FollowingStateEnum.FOLLOWING
+            }
 
-    fun unfollowUser(userName: String): Completable =
+    fun unfollowUser(userName: String): Single<FollowingStateEnum> =
         api.unfollowUser(userName)
             .subscribeOn(Schedulers.io())
+            .toSingle {
+                FollowingStateEnum.UNFOLLOWING
+            }
 }
